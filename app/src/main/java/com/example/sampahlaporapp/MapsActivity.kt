@@ -5,6 +5,7 @@ import android.content.pm.PackageManager
 import android.location.Location
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
+import android.util.Log
 import android.widget.Toast
 import androidx.core.app.ActivityCompat
 import androidx.core.content.ContextCompat
@@ -19,6 +20,8 @@ import com.example.sampahlaporapp.databinding.ActivityMapsBinding
 import com.google.android.gms.location.FusedLocationProviderClient
 import com.google.android.gms.location.LocationServices
 import com.google.android.gms.maps.model.LatLngBounds
+import com.google.firebase.Firebase
+import com.google.firebase.firestore.firestore
 import java.util.Calendar
 import java.util.Date
 import kotlin.math.asin
@@ -35,6 +38,8 @@ class MapsActivity : AppCompatActivity(), OnMapReadyCallback {
     private lateinit var fusedLocationClient: FusedLocationProviderClient
     val dinasKebersihan = LatLng(-5.135562551405088, 119.42873702418484)
     var myLocation = LatLng(-5.135562551405088, 119.42873702418484)
+
+    val db = Firebase.firestore
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -68,7 +73,16 @@ class MapsActivity : AppCompatActivity(), OnMapReadyCallback {
             "coordinat" to "${myLocation.latitude}, ${myLocation.longitude}",
             "tanggal" to Calendar.getInstance().time
         )
-        Toast.makeText(this, "$message\n${data}", Toast.LENGTH_SHORT).show()
+
+        db.collection("notifications")
+            .add(data)
+            .addOnSuccessListener {documentReference ->
+                Toast.makeText(this, "$message\n${data}", Toast.LENGTH_SHORT).show()
+            }
+            .addOnFailureListener {e ->
+                Toast.makeText(this, "Fail to send data${e}", Toast.LENGTH_SHORT).show()
+            }
+
 
     }
 
@@ -106,7 +120,7 @@ class MapsActivity : AppCompatActivity(), OnMapReadyCallback {
                     val longitude = location.longitude
                     myLocation = LatLng(latitude, longitude)
 //                    mMap.moveCamera(CameraUpdateFactory.newLatLngZoom(myLocation, 15F))
-                    val bounds = LatLngBounds(dinasKebersihan, myLocation)
+                    val bounds = LatLngBounds(myLocation, dinasKebersihan)
                     mMap.animateCamera(CameraUpdateFactory.newLatLngBounds(bounds, 95))
                     val jarak = haversineDistance(myLocation, dinasKebersihan)
                     binding.jarakTV.text = "Jarak : $jarak KM"
