@@ -29,7 +29,8 @@
             android:id="@+id/jarakTV"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="JARAK 2 KM" />
+            android:text="JARAK 2 KM"
+            android:layout_marginBottom="10dp" />
 
         <Button
             android:id="@+id/hampirPenuhBtn"
@@ -46,6 +47,16 @@
             android:text="Telah tumpah"
             android:textColor="@color/black"
             android:backgroundTint="@color/red"/>
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Lihat Riwayat"
+            android:layout_marginTop="8dp"
+            android:layout_gravity="center"
+            android:textColor="#0000FF"
+            android:onClick="openHistoryActivity"
+            android:clickable="true" />
     </LinearLayout>
 
 
