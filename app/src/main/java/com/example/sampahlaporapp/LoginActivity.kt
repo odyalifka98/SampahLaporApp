@@ -86,8 +86,8 @@ class LoginActivity : AppCompatActivity() {
         auth = Firebase.auth
         val currentUser = auth.currentUser
         if (currentUser != null) {
-//            val intent = Intent(this, MapsActivity::class.java)
-//            startActivity(intent)
+            val intent = Intent(this, MapsActivity::class.java)
+            startActivity(intent)
         }
     }
 

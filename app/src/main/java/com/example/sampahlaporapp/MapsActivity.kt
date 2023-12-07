@@ -9,6 +9,8 @@ import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
 import android.util.Log
 import android.view.View
+import android.widget.ImageView
+import android.widget.TextView
 import android.widget.Toast
 import androidx.core.app.ActivityCompat
 import androidx.core.content.ContextCompat
@@ -24,6 +26,8 @@ import com.google.android.gms.location.FusedLocationProviderClient
 import com.google.android.gms.location.LocationServices
 import com.google.android.gms.maps.model.LatLngBounds
 import com.google.firebase.Firebase
+import com.google.firebase.auth.FirebaseAuth
+import com.google.firebase.auth.auth
 import com.google.firebase.firestore.firestore
 import java.util.Calendar
 import java.util.Date
@@ -36,6 +40,8 @@ import kotlin.math.sqrt
 
 class MapsActivity : AppCompatActivity(), OnMapReadyCallback {
 
+    private lateinit var logoutImageView: ImageView
+    private lateinit var auth: FirebaseAuth
     private lateinit var mMap: GoogleMap
     private lateinit var binding: ActivityMapsBinding
     private lateinit var fusedLocationClient: FusedLocationProviderClient
@@ -226,5 +232,12 @@ class MapsActivity : AppCompatActivity(), OnMapReadyCallback {
         val roundedDistance = round(distance * 10.0.pow(2)) / 10.0.pow(2)
 
         return roundedDistance
+    }
+
+    fun logoutHandler(view: View) {
+        auth = Firebase.auth
+        auth.signOut()
+        val intent = Intent(this, LoginActivity::class.java)
+        startActivity(intent)
     }
 }
