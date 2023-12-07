@@ -1,6 +1,7 @@
 package com.example.sampahlaporapp
 
 import android.Manifest
+import android.content.Context
 import android.content.pm.PackageManager
 import android.location.Location
 import androidx.appcompat.app.AppCompatActivity
@@ -58,7 +59,7 @@ class MapsActivity : AppCompatActivity(), OnMapReadyCallback {
         }
 
         binding.hampirPenuhBtn.setOnClickListener {
-            sendData("hampir penuh")
+            sendData("Hampir penuh")
         }
 
         binding.telahTumpahBtn.setOnClickListener {
@@ -66,24 +67,29 @@ class MapsActivity : AppCompatActivity(), OnMapReadyCallback {
         }
     }
 
-    private fun sendData(message: String) {
+    private fun sendData(status: String) {
+        val sharedPreferences = getSharedPreferences("user", Context.MODE_PRIVATE)
+        val fullName = sharedPreferences.getString("fullName", "")
+        val address = sharedPreferences.getString("address", "")
+        val uid = sharedPreferences.getString("uid", "")
+
         val data = mapOf<String, Any>(
-            "nama" to "ody",
-            "alamat" to "titik nol",
+            "status" to status,
+            "fullName" to fullName!!,
+            "address" to address!!,
+            "user_id" to uid!!,
             "coordinat" to "${myLocation.latitude}, ${myLocation.longitude}",
-            "tanggal" to Calendar.getInstance().time
+            "datetime" to Calendar.getInstance().time
         )
 
         db.collection("notifications")
             .add(data)
             .addOnSuccessListener {documentReference ->
-                Toast.makeText(this, "$message\n${data}", Toast.LENGTH_SHORT).show()
+                Toast.makeText(this, "Notifikasi telah dikirim!", Toast.LENGTH_SHORT).show()
             }
             .addOnFailureListener {e ->
-                Toast.makeText(this, "Fail to send data${e}", Toast.LENGTH_SHORT).show()
+                Toast.makeText(this, "Gagal mengirim notifikasi!", Toast.LENGTH_SHORT).show()
             }
-
-
     }
 
     private fun checkLocationPermission(): Boolean {
