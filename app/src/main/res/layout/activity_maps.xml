@@ -49,6 +49,7 @@
             android:backgroundTint="@color/red"/>
 
         <TextView
+            android:id="@+id/lihatRiwayat"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:text="Lihat Riwayat"

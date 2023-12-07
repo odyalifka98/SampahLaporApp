@@ -70,6 +70,11 @@ class MapsActivity : AppCompatActivity(), OnMapReadyCallback {
         binding.telahTumpahBtn.setOnClickListener {
             sendData("Telah tumpah")
         }
+
+        binding.lihatRiwayat.setOnClickListener {
+            val intent = Intent(this, HistoryActivity::class.java)
+            startActivity(intent)
+        }
     }
 
     private fun sendData(status: String) {

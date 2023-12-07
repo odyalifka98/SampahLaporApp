@@ -55,6 +55,12 @@
             android:label="@string/title_activity_maps">
         </activity>
 
+        <activity
+            android:name=".HistoryActivity"
+            android:exported="true"
+            android:label="HistoryActivity">
+        </activity>
+
     </application>
 
 </manifest>
