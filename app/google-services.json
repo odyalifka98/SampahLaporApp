@@ -1,13 +1,13 @@
 {
   "project_info": {
-    "project_number": "938034624816",
-    "project_id": "sampahlaporapp",
-    "storage_bucket": "sampahlaporapp.appspot.com"
+    "project_number": "251764574853",
+    "project_id": "sampahlaporapp-4767b",
+    "storage_bucket": "sampahlaporapp-4767b.appspot.com"
   },
   "client": [
     {
       "client_info": {
-        "mobilesdk_app_id": "1:938034624816:android:42c8a1210584a54be670f5",
+        "mobilesdk_app_id": "1:251764574853:android:1a708906b5edc7c5ecb7ec",
         "android_client_info": {
           "package_name": "com.example.sampahlaporapp"
         }
@@ -15,7 +15,7 @@
       "oauth_client": [],
       "api_key": [
         {
-          "current_key": "AIzaSyD819MPbLkIjrtuEc5aOXZTbIRXDYZ4DKM"
+          "current_key": "AIzaSyAywOndsEKtuIiGtt7hHzT99vYmcWiSKoI"
         }
       ],
       "services": {

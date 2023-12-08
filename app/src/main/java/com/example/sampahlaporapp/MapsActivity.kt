@@ -1,10 +1,16 @@
 package com.example.sampahlaporapp
 
 import android.Manifest
+import android.content.Context
+import android.content.Intent
 import android.content.pm.PackageManager
 import android.location.Location
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
+import android.util.Log
+import android.view.View
+import android.widget.ImageView
+import android.widget.TextView
 import android.widget.Toast
 import androidx.core.app.ActivityCompat
 import androidx.core.content.ContextCompat
@@ -19,6 +25,10 @@ import com.example.sampahlaporapp.databinding.ActivityMapsBinding
 import com.google.android.gms.location.FusedLocationProviderClient
 import com.google.android.gms.location.LocationServices
 import com.google.android.gms.maps.model.LatLngBounds
+import com.google.firebase.Firebase
+import com.google.firebase.auth.FirebaseAuth
+import com.google.firebase.auth.auth
+import com.google.firebase.firestore.firestore
 import java.util.Calendar
 import java.util.Date
 import kotlin.math.asin
@@ -30,11 +40,18 @@ import kotlin.math.sqrt
 
 class MapsActivity : AppCompatActivity(), OnMapReadyCallback {
 
+    private lateinit var logoutImageView: ImageView
+    private lateinit var auth: FirebaseAuth
     private lateinit var mMap: GoogleMap
     private lateinit var binding: ActivityMapsBinding
     private lateinit var fusedLocationClient: FusedLocationProviderClient
-    val dinasKebersihan = LatLng(-5.135562551405088, 119.42873702418484)
+    val dinasKebersihanMakassar = LatLng(-5.135562551405088, 119.42873702418484)
+    val dinasKebersihanGowa = LatLng(-5.20646628740547, 119.46658299797724)
+    val dinasKebersihanMaros = LatLng(-5.0026575191694, 119.57217037985826)
+    val dinasKebersihanTakalar = LatLng(-5.420168275316799, 119.44651370271583)
     var myLocation = LatLng(-5.135562551405088, 119.42873702418484)
+
+    val db = Firebase.firestore
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -53,23 +70,45 @@ class MapsActivity : AppCompatActivity(), OnMapReadyCallback {
         }
 
         binding.hampirPenuhBtn.setOnClickListener {
-            sendData("hampir penuh")
+            sendData("Hampir penuh")
         }
 
         binding.telahTumpahBtn.setOnClickListener {
             sendData("Telah tumpah")
         }
+
+        binding.lihatRiwayat.setOnClickListener {
+            val intent = Intent(this, HistoryActivity::class.java)
+            startActivity(intent)
+        }
     }
 
-    private fun sendData(message: String) {
-        val data = mapOf<String, Any>(
-            "nama" to "ody",
-            "alamat" to "titik nol",
-            "coordinat" to "${myLocation.latitude}, ${myLocation.longitude}",
-            "tanggal" to Calendar.getInstance().time
-        )
-        Toast.makeText(this, "$message\n${data}", Toast.LENGTH_SHORT).show()
+    private fun sendData(status: String) {
+        val sharedPreferences = getSharedPreferences("user", Context.MODE_PRIVATE)
+        val fullName = sharedPreferences.getString("fullName", "")
+        val address = sharedPreferences.getString("address", "")
+        val uid = sharedPreferences.getString("uid", "")
 
+        val (dinas, jarak) = getNearestOffice()
+
+        val data = mapOf<String, Any>(
+            "status" to status,
+            "fullName" to fullName!!,
+            "address" to address!!,
+            "user_id" to uid!!,
+            "coordinate" to "${myLocation.latitude}, ${myLocation.longitude}",
+            "office_receiver" to dinas,
+            "datetime" to Calendar.getInstance().time
+        )
+
+        db.collection("notifications")
+            .add(data)
+            .addOnSuccessListener {documentReference ->
+                Toast.makeText(this, "Notifikasi telah dikirim!", Toast.LENGTH_SHORT).show()
+            }
+            .addOnFailureListener {e ->
+                Toast.makeText(this, "Gagal mengirim notifikasi!", Toast.LENGTH_SHORT).show()
+            }
     }
 
     private fun checkLocationPermission(): Boolean {
@@ -106,12 +145,39 @@ class MapsActivity : AppCompatActivity(), OnMapReadyCallback {
                     val longitude = location.longitude
                     myLocation = LatLng(latitude, longitude)
 //                    mMap.moveCamera(CameraUpdateFactory.newLatLngZoom(myLocation, 15F))
-                    val bounds = LatLngBounds(dinasKebersihan, myLocation)
+                    val bounds = LatLngBounds(myLocation, dinasKebersihanMakassar)
                     mMap.animateCamera(CameraUpdateFactory.newLatLngBounds(bounds, 95))
-                    val jarak = haversineDistance(myLocation, dinasKebersihan)
-                    binding.jarakTV.text = "Jarak : $jarak KM"
+
+                    val (dinas, jarak) = getNearestOffice()
+                    binding.jarakTV.text = "Jarak terdekat ke dinas kebersihan : $jarak km ($dinas)"
                 }
             }
+    }
+
+    private fun getNearestOffice(): Pair<String, Double> {
+        val jarakMakassar = haversineDistance(myLocation, dinasKebersihanMakassar)
+        var jarakText = jarakMakassar
+        var dinasText = "Dinas Pertamanan dan Kebersihan Kota Makassar"
+
+        val jarakGowa= haversineDistance(myLocation, dinasKebersihanGowa)
+        if (jarakGowa < jarakText) {
+            jarakText = jarakGowa
+            dinasText = "Dinas Lingkungan Hidup Kabupaten Gowa"
+        }
+
+        val jarakTakalar = haversineDistance(myLocation, dinasKebersihanTakalar)
+        if (jarakTakalar < jarakText) {
+            jarakText = jarakTakalar
+            dinasText = "Dinas Kebersihan, Pertamanan dan Pemakaman Kabupaten Maros"
+        }
+
+        val jarakMaros= haversineDistance(myLocation, dinasKebersihanMaros)
+        if (jarakMaros< jarakText) {
+            jarakText = jarakMaros
+            dinasText = "Dinas Lingkungan Hidup dan Pertanahan Kabupaten Takalar"
+        }
+
+        return Pair(dinasText, jarakText)
     }
 
 
@@ -129,7 +195,10 @@ class MapsActivity : AppCompatActivity(), OnMapReadyCallback {
 
         // Add a marker in Sydney and move the camera
 
-        mMap.addMarker(MarkerOptions().position(dinasKebersihan).title("Marker in dinas kebersihan"))
+        mMap.addMarker(MarkerOptions().position(dinasKebersihanMakassar).title("Dinas Pertamanan dan Kebersihan Kota Makassar"))
+        mMap.addMarker(MarkerOptions().position(dinasKebersihanGowa).title("Dinas Lingkungan Hidup Kabupaten Gowa"))
+        mMap.addMarker(MarkerOptions().position(dinasKebersihanMaros).title("Dinas Kebersihan, Pertamanan dan Pemakaman Kabupaten Maros"))
+        mMap.addMarker(MarkerOptions().position(dinasKebersihanTakalar).title("Dinas Lingkungan Hidup dan Pertanahan Kabupaten Takalar"))
 
         if (ActivityCompat.checkSelfPermission(
                 this,
@@ -165,4 +234,10 @@ class MapsActivity : AppCompatActivity(), OnMapReadyCallback {
         return roundedDistance
     }
 
+    fun logoutHandler(view: View) {
+        auth = Firebase.auth
+        auth.signOut()
+        val intent = Intent(this, LoginActivity::class.java)
+        startActivity(intent)
+    }
 }

@@ -1,0 +1,96 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    tools:context=".HistoryActivity">
+
+    <androidx.appcompat.widget.Toolbar
+        android:id="@+id/toolbar"
+        android:backgroundTint="@color/red"
+        android:layout_width="match_parent"
+        android:layout_height="?attr/actionBarSize"
+        android:background="?attr/colorPrimary">
+
+        <ImageView
+            android:id="@+id/backIcon"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_gravity="start"
+            android:layout_marginStart="8dp"
+            android:contentDescription="Back Icon"
+            android:src="@drawable/ic_back_arrow" />
+
+        <TextView
+            android:id="@+id/titleText"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="16dp"
+            android:layout_marginEnd="16dp"
+            android:text="Riwayat"
+            android:textColor="@android:color/white"
+            android:textSize="24sp" />
+
+    </androidx.appcompat.widget.Toolbar>
+
+    <androidx.cardview.widget.CardView
+        android:id="@+id/statusCard"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_margin="16dp"
+        android:layout_below="@+id/toolbar"
+        android:elevation="4dp">
+
+        <RelativeLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:padding="16dp">
+
+            <!-- Dinas -->
+            <TextView
+                android:id="@+id/dinasText"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Dinas: Dinas Kebersihan Makassar"
+                android:textSize="18sp"
+                android:textStyle="bold"/>
+
+            <!-- Status -->
+            <TextView
+                android:id="@+id/status"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_below="@id/dinasText"
+                android:layout_marginTop="8dp"
+                android:text="Status: "
+                android:textSize="16sp"
+                />
+
+            <!-- Isi Status -->
+            <TextView
+                android:id="@+id/statusText"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_below="@id/dinasText"
+                android:layout_marginTop="8dp"
+                android:text="Hampir Penuh"
+                android:textStyle="bold"
+                android:textSize="16sp"
+                android:layout_toEndOf="@id/status"
+                />
+
+            <!-- DateTime -->
+            <TextView
+                android:id="@+id/datetimeText"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_below="@id/statusText"
+                android:layout_marginTop="8dp"
+                android:text="Datetime: 2023-12-07 14:30"
+                android:textSize="16sp"
+                android:textColor="@android:color/darker_gray"/>
+        </RelativeLayout>
+    </androidx.cardview.widget.CardView>
+
+</RelativeLayout>
